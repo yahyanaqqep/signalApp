@@ -132,6 +132,75 @@ sampling_text = tkinter.Text(createSignalTab, height=0, width=10)
 sampling_text.place(x=140, y=160)
 
 
+# ----------------------------Second Signal-------------------------
+
+
+def activate_second_signal():
+    if dual_signal_on.get() == 1:
+        wave_type_label_2.pack()
+        wave_menu_2.pack()
+        amplitude_text_2.pack()
+        amplitude_label_2.pack()
+        phase_shift_label_2.pack()
+        theta_text_2.pack()
+        analog_frequency_label_2.pack()
+        analog_text_2.pack()
+        wave_type_label_2.place(x=220, y=10)
+        wave_menu_2.place(x=285, y=5)
+        amplitude_text_2.place(x=310, y=70)
+        amplitude_label_2.place(x=220, y=70)
+        phase_shift_label_2.place(x=220, y=100)
+        theta_text_2.place(x=310, y=100)
+        analog_frequency_label_2.place(x=220, y=130)
+        analog_text_2.place(x=330, y=130)
+    elif dual_signal_on.get() == 0:
+        wave_type_label_2.pack_forget()
+        wave_menu_2.pack_forget()
+        amplitude_text_2.pack_forget()
+        amplitude_label_2.pack_forget()
+        phase_shift_label_2.pack_forget()
+        theta_text_2.pack_forget()
+        analog_frequency_label_2.pack_forget()
+        analog_text_2.pack_forget()
+        wave_type_label_2.place_forget()
+        wave_menu_2.place_forget()
+        amplitude_text_2.place_forget()
+        amplitude_label_2.place_forget()
+        phase_shift_label_2.place_forget()
+        theta_text_2.place_forget()
+        analog_frequency_label_2.place_forget()
+        analog_text_2.place_forget()
+
+
+dual_signal_on = tkinter.IntVar()
+dual_signal = tkinter.Checkbutton(createSignalTab, variable=dual_signal_on, onvalue=1, offvalue=0,
+                                  command=activate_second_signal)
+dual_signal.place(x=85, y=35)
+tkinter.Label(createSignalTab, text="Two Signals:").place(x=20, y=35)
+
+wave_type_label_2 = tkinter.Label(createSignalTab, text="Wave Type:")
+wave_options_2 = ["Sin", "Cos"]
+clicked_wave_2 = tkinter.StringVar()
+clicked_wave_2.set("Sin")
+wave_menu_2 = tkinter.OptionMenu(createSignalTab, clicked_wave_2, *wave_options)
+amplitude_text_2 = tkinter.Text(createSignalTab, height=0, width=10)
+amplitude_label_2 = tkinter.Label(createSignalTab, text="Amplitude (A):")
+phase_shift_label_2 = tkinter.Label(createSignalTab, text="Phase Shift (Θ):")
+theta_text_2 = tkinter.Text(createSignalTab, height=0, width=10)
+analog_frequency_label_2 = tkinter.Label(createSignalTab, text="Analog Frequency:")
+analog_text_2 = tkinter.Text(createSignalTab, height=0, width=10)
+wave_type_label_2.pack_forget()
+wave_menu_2.pack_forget()
+amplitude_text_2.pack_forget()
+amplitude_label_2.pack_forget()
+phase_shift_label_2.pack_forget()
+theta_text_2.pack_forget()
+analog_frequency_label_2.pack_forget()
+analog_text_2.pack_forget()
+
+
+# --------------------------------Second Signal end----------------
+
 def is_float(string):
     if string.replace(".", "").isnumeric():
         return True
@@ -153,16 +222,55 @@ def draw_signal():
     if float(sampling_text.get(1.0, "end-1c")) < 2 * float(analog_text.get(1.0, "end-1c")):
         messagebox.showerror("Error!", "Sampling Frequency should be at least twice the Analog Frequency!")
         return
-    angular_frequency = 2*math.pi*float(analog_text.get(1.0, "end-1c"))
+    angular_frequency = 2 * math.pi * float(analog_text.get(1.0, "end-1c"))
     theta = float(theta_text.get(1.0, "end-1c"))
     amp = float(amplitude_text.get(1.0, 'end-1c'))
-    if clicked_wave.get() == "Sin":
-        print("Hello")
-        for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
-            x.append(i)
-            y.append(amp*math.sin(angular_frequency*i + theta))
-        plt.plot(x, y)
-        plt.show()
+    if dual_signal_on.get()==1:
+        if clicked_wave.get() == "Sin":
+            for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
+                x.append(i)
+                y.append(amp * math.sin((angular_frequency * i) + theta))
+            x_smooth = np.array(x)
+            y_smooth = np.array(y)
+            x_y_spline = make_interp_spline(x_smooth, y_smooth)
+            x_ = np.linspace(x_smooth.min(), x_smooth.max(), 500)
+            y_ = x_y_spline(x_)
+            plt.plot(x_, y_)
+            plt.show()
+        elif clicked_wave.get() == "Cos":
+            for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
+                x.append(i)
+                y.append(amp * math.cos((angular_frequency * i) + theta))
+            x_smooth = np.array(x)
+            y_smooth = np.array(y)
+            x_y_spline = make_interp_spline(x_smooth, y_smooth)
+            x_ = np.linspace(x_smooth.min(), x_smooth.max(), 500)
+            y_ = x_y_spline(x_)
+            plt.plot(x_, y_)
+            plt.show()
+    elif dual_signal_on.get()==0:
+        if clicked_wave.get() == "Sin":
+            for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
+                x.append(i)
+                y.append(amp * math.sin((angular_frequency * i) + theta))
+            x_smooth = np.array(x)
+            y_smooth = np.array(y)
+            x_y_spline = make_interp_spline(x_smooth, y_smooth)
+            x_ = np.linspace(x_smooth.min(), x_smooth.max(), 500)
+            y_ = x_y_spline(x_)
+            plt.plot(x_, y_)
+            plt.show()
+        elif clicked_wave.get() == "Cos":
+            for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
+                x.append(i)
+                y.append(amp * math.cos((angular_frequency * i) + theta))
+            x_smooth = np.array(x)
+            y_smooth = np.array(y)
+            x_y_spline = make_interp_spline(x_smooth, y_smooth)
+            x_ = np.linspace(x_smooth.min(), x_smooth.max(), 500)
+            y_ = x_y_spline(x_)
+            plt.plot(x_, y_)
+            plt.show()
 
 
 draw_signal_button = tkinter.Button(createSignalTab, text="Draw Signal", command=draw_signal)
