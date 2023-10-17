@@ -1,3 +1,4 @@
+import math
 import os.path
 import tkinter
 from tkinter import ttk
@@ -112,7 +113,7 @@ print_signal_button.place(x=700, y=50)
 
 
 tkinter.Label(createSignalTab, text="Wave Type:").place(x=20, y=10)
-wave_options = ["Sin","Cos"]
+wave_options = ["Sin", "Cos"]
 clicked_wave = tkinter.StringVar()
 clicked_wave.set("Sin")
 wave_menu = tkinter.OptionMenu(createSignalTab, clicked_wave, *wave_options)
@@ -121,7 +122,7 @@ amplitude_text = tkinter.Text(createSignalTab, height=0, width=10)
 tkinter.Label(createSignalTab, text="Amplitude (A):").place(x=20, y=70)
 amplitude_text.place(x=110, y=70)
 tkinter.Label(createSignalTab, text="Phase Shift (Θ):").place(x=20, y=100)
-theta_text = tkinter.Text(createSignalTab,height=0, width=10)
+theta_text = tkinter.Text(createSignalTab, height=0, width=10)
 theta_text.place(x=110, y=100)
 tkinter.Label(createSignalTab, text="Analog Frequency:").place(x=20, y=130)
 analog_text = tkinter.Text(createSignalTab, height=0, width=10)
@@ -129,5 +130,42 @@ analog_text.place(x=130, y=130)
 tkinter.Label(createSignalTab, text="Sampling Frequency:").place(x=20, y=160)
 sampling_text = tkinter.Text(createSignalTab, height=0, width=10)
 sampling_text.place(x=140, y=160)
+
+
+def is_float(string):
+    if string.replace(".", "").isnumeric():
+        return True
+    else:
+        return False
+
+
+def draw_signal():
+    x = []
+    y = []
+    if (amplitude_text.get(1.0, "end-1c") == '' or theta_text.get(1.0, "end-1c") == ''
+            or analog_text.get(1.0, "end-1c") == '' or sampling_text.get(1.0, "end-1c") == ''):
+        messagebox.showerror("Error!", "Please complete all fields!")
+        return
+    if (not str.isdigit(amplitude_text.get(1.0, "end-1c")) or not is_float(theta_text.get(1.0, "end-1c"))
+            or not str.isdigit(analog_text.get(1.0, "end-1c")) or not str.isdigit(sampling_text.get(1.0, "end-1c"))):
+        messagebox.showerror("Error!", "All fields should be numbers!")
+        return
+    if float(sampling_text.get(1.0, "end-1c")) < 2 * float(analog_text.get(1.0, "end-1c")):
+        messagebox.showerror("Error!", "Sampling Frequency should be at least twice the Analog Frequency!")
+        return
+    angular_frequency = 2*math.pi*float(analog_text.get(1.0, "end-1c"))
+    theta = float(theta_text.get(1.0, "end-1c"))
+    amp = float(amplitude_text.get(1.0, 'end-1c'))
+    if clicked_wave.get() == "Sin":
+        print("Hello")
+        for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
+            x.append(i)
+            y.append(amp*math.sin(angular_frequency*i + theta))
+        plt.plot(x, y)
+        plt.show()
+
+
+draw_signal_button = tkinter.Button(createSignalTab, text="Draw Signal", command=draw_signal)
+draw_signal_button.place(x=80, y=190)
 
 mainWindow.mainloop()
