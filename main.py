@@ -145,6 +145,8 @@ def activate_second_signal():
         theta_text_2.pack()
         analog_frequency_label_2.pack()
         analog_text_2.pack()
+        sampling_label_2.pack()
+        sampling_text_2.pack()
         wave_type_label_2.place(x=220, y=10)
         wave_menu_2.place(x=285, y=5)
         amplitude_text_2.place(x=310, y=70)
@@ -153,6 +155,8 @@ def activate_second_signal():
         theta_text_2.place(x=310, y=100)
         analog_frequency_label_2.place(x=220, y=130)
         analog_text_2.place(x=330, y=130)
+        sampling_label_2.place(x=220, y=160)
+        sampling_text_2.place(x=340, y=160)
     elif dual_signal_on.get() == 0:
         wave_type_label_2.pack_forget()
         wave_menu_2.pack_forget()
@@ -162,6 +166,8 @@ def activate_second_signal():
         theta_text_2.pack_forget()
         analog_frequency_label_2.pack_forget()
         analog_text_2.pack_forget()
+        sampling_label_2.pack_forget()
+        sampling_text_2.pack_forget()
         wave_type_label_2.place_forget()
         wave_menu_2.place_forget()
         amplitude_text_2.place_forget()
@@ -170,6 +176,8 @@ def activate_second_signal():
         theta_text_2.place_forget()
         analog_frequency_label_2.place_forget()
         analog_text_2.place_forget()
+        sampling_text_2.place_forget()
+        sampling_label_2.place_forget()
 
 
 dual_signal_on = tkinter.IntVar()
@@ -189,6 +197,8 @@ phase_shift_label_2 = tkinter.Label(createSignalTab, text="Phase Shift (Θ):")
 theta_text_2 = tkinter.Text(createSignalTab, height=0, width=10)
 analog_frequency_label_2 = tkinter.Label(createSignalTab, text="Analog Frequency:")
 analog_text_2 = tkinter.Text(createSignalTab, height=0, width=10)
+sampling_label_2 = tkinter.Label(createSignalTab, text="Sampling Frequency:")
+sampling_text_2 = tkinter.Text(createSignalTab, height=0, width=10)
 wave_type_label_2.pack_forget()
 wave_menu_2.pack_forget()
 amplitude_text_2.pack_forget()
@@ -197,6 +207,8 @@ phase_shift_label_2.pack_forget()
 theta_text_2.pack_forget()
 analog_frequency_label_2.pack_forget()
 analog_text_2.pack_forget()
+sampling_label_2.pack_forget()
+sampling_text_2.pack_forget()
 
 
 # --------------------------------Second Signal end----------------
@@ -225,30 +237,79 @@ def draw_signal():
     angular_frequency = 2 * math.pi * float(analog_text.get(1.0, "end-1c"))
     theta = float(theta_text.get(1.0, "end-1c"))
     amp = float(amplitude_text.get(1.0, 'end-1c'))
-    if dual_signal_on.get()==1:
+    if dual_signal_on.get() == 1:
+        if (amplitude_text_2.get(1.0, "end-1c") == '' or theta_text_2.get(1.0, "end-1c") == ''
+                or analog_text_2.get(1.0, "end-1c") == '' or sampling_text_2.get(1.0, "end-1c") == ''):
+            messagebox.showerror("Error!", "Please complete all fields!")
+            return
+        if (not str.isdigit(amplitude_text_2.get(1.0, "end-1c")) or not is_float(theta_text_2.get(1.0, "end-1c"))
+                or not str.isdigit(analog_text_2.get(1.0, "end-1c")) or not str.isdigit(
+                    sampling_text_2.get(1.0, "end-1c"))):
+            messagebox.showerror("Error!", "All fields should be numbers!")
+            return
+        if float(sampling_text_2.get(1.0, "end-1c")) < 2 * float(analog_text_2.get(1.0, "end-1c")):
+            messagebox.showerror("Error!", "Sampling Frequency should be at least twice the Analog Frequency!")
+            return
+        x1 = []
+        y1 = []
+        x2 = []
+        y2 = []
+        x_y_spline1 = None
+        x_y_spline2 = None
+        angular_frequency_2 = 2 * math.pi * float(analog_text_2.get(1.0,"end-1c"))
+        theta_2 = float(theta_text_2.get(1.0, "end-1c"))
+        amp = float(amplitude_text_2.get(1.0, "end-1c"))
         if clicked_wave.get() == "Sin":
             for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
-                x.append(i)
-                y.append(amp * math.sin((angular_frequency * i) + theta))
-            x_smooth = np.array(x)
-            y_smooth = np.array(y)
-            x_y_spline = make_interp_spline(x_smooth, y_smooth)
-            x_ = np.linspace(x_smooth.min(), x_smooth.max(), 500)
-            y_ = x_y_spline(x_)
+                x1.append(i)
+                y1.append(amp * math.sin((angular_frequency * i) + theta))
+            x1 = np.array(x1)
+            y1 = np.array(y1)
+            x_y_spline1 = make_interp_spline(x1, y1)
+            x1 = np.linspace(x1.min(), x1.max(), 500)
+            y1 = x_y_spline1(x1)
+            """
             plt.plot(x_, y_)
             plt.show()
+            """
         elif clicked_wave.get() == "Cos":
             for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
-                x.append(i)
-                y.append(amp * math.cos((angular_frequency * i) + theta))
-            x_smooth = np.array(x)
-            y_smooth = np.array(y)
-            x_y_spline = make_interp_spline(x_smooth, y_smooth)
-            x_ = np.linspace(x_smooth.min(), x_smooth.max(), 500)
-            y_ = x_y_spline(x_)
+                x1.append(i)
+                y1.append(amp * math.cos((angular_frequency * i) + theta))
+            x1 = np.array(x1)
+            y1 = np.array(y1)
+            x_y_spline1 = make_interp_spline(x1, y1)
+            x1 = np.linspace(x1.min(), x1.max(), 500)
+            y1 = x_y_spline1(x1)
+            """
             plt.plot(x_, y_)
             plt.show()
-    elif dual_signal_on.get()==0:
+            """
+        if clicked_wave_2.get() == "Sin":
+            for i in range(0, int(sampling_text_2.get(1.0, "end-1c"))):
+                x2.append(i)
+                y2.append(amp * math.sin((angular_frequency_2 * i) + theta_2))
+            x2 = np.array(x2)
+            y2 = np.array(y2)
+            x_y_spline2 = make_interp_spline(x2, y2)
+            x2 = np.linspace(x2.min(), x2.max(), 500)
+            y2 = x_y_spline2(x2)
+        elif clicked_wave_2.get() == "Cos":
+            for i in range(0, int(sampling_text_2.get(1.0, "end-1c"))):
+                x2.append(i)
+                y2.append(amp * math.cos((angular_frequency_2 * i) + theta_2))
+            x2 = np.array(x2)
+            y2 = np.array(y2)
+            x_y_spline2 = make_interp_spline(x2, y2)
+            x2 = np.linspace(x2.min(), x2.max(), 500)
+            y2 = x_y_spline2(x2)
+        plt.subplot(121)
+        plt.plot(x1, y1)
+        plt.subplot(122)
+        plt.plot(x2,y2)
+        plt.show()
+
+    elif dual_signal_on.get() == 0:
         if clicked_wave.get() == "Sin":
             for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
                 x.append(i)
