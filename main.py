@@ -26,7 +26,7 @@ dirc = ""
 radio_var = tkinter.IntVar(value=0)
 discrete_radio_button = tkinter.Radiobutton(readSignalTab, text="Discrete", variable=radio_var, value=1)
 discrete_radio_button.place(x=20, y=40)
-continious_radio_button = tkinter.Radiobutton(readSignalTab, text="Continious", variable=radio_var, value=2)
+continious_radio_button = tkinter.Radiobutton(readSignalTab, text="Continuous", variable=radio_var, value=2)
 continious_radio_button.place(x=20, y=60)
 
 
@@ -70,7 +70,6 @@ def read_signal():
         messagebox.showerror("Error!", "Please choose a graph type!")
         return
 
-    print(dirc)
     signalfile = open(dirc, 'r')
     signalfiletext = signalfile.readlines()
     for i in range(3, 2 + int(signalfiletext[2])):
@@ -78,8 +77,6 @@ def read_signal():
         text = text.split(" ")
         x.append(float(text[0]))
         y.append(float(text[1]))
-    print(x)
-    print(y)
     if radio_var.get() == 1:
         plt.figure().clear()
         plt.close()
@@ -234,7 +231,7 @@ def draw_signal():
     if float(sampling_text.get(1.0, "end-1c")) < 2 * float(analog_text.get(1.0, "end-1c")):
         messagebox.showerror("Error!", "Sampling Frequency should be at least twice the Analog Frequency!")
         return
-    angular_frequency = 2 * math.pi * float(analog_text.get(1.0, "end-1c"))
+    angular_frequency = 2 * np.pi * (float(analog_text.get(1.0, "end-1c"))/float(sampling_text.get(1.0, "end-1c")))
     theta = float(theta_text.get(1.0, "end-1c"))
     amp = float(amplitude_text.get(1.0, 'end-1c'))
     if dual_signal_on.get() == 1:
@@ -256,7 +253,7 @@ def draw_signal():
         y2 = []
         x_y_spline1 = None
         x_y_spline2 = None
-        angular_frequency_2 = 2 * math.pi * float(analog_text_2.get(1.0,"end-1c"))
+        angular_frequency_2 = 2 * math.pi * (float(analog_text_2.get(1.0, "end-1c"))/float(sampling_text_2.get(1.0, "end-1c")))
         theta_2 = float(theta_text_2.get(1.0, "end-1c"))
         amp = float(amplitude_text_2.get(1.0, "end-1c"))
         if clicked_wave.get() == "Sin":
@@ -268,10 +265,6 @@ def draw_signal():
             x_y_spline1 = make_interp_spline(x1, y1)
             x1 = np.linspace(x1.min(), x1.max(), 500)
             y1 = x_y_spline1(x1)
-            """
-            plt.plot(x_, y_)
-            plt.show()
-            """
         elif clicked_wave.get() == "Cos":
             for i in range(0, int(sampling_text.get(1.0, "end-1c"))):
                 x1.append(i)
@@ -281,10 +274,6 @@ def draw_signal():
             x_y_spline1 = make_interp_spline(x1, y1)
             x1 = np.linspace(x1.min(), x1.max(), 500)
             y1 = x_y_spline1(x1)
-            """
-            plt.plot(x_, y_)
-            plt.show()
-            """
         if clicked_wave_2.get() == "Sin":
             for i in range(0, int(sampling_text_2.get(1.0, "end-1c"))):
                 x2.append(i)
@@ -303,10 +292,10 @@ def draw_signal():
             x_y_spline2 = make_interp_spline(x2, y2)
             x2 = np.linspace(x2.min(), x2.max(), 500)
             y2 = x_y_spline2(x2)
-        plt.subplot(121)
+        # plt.subplot(121)
         plt.plot(x1, y1)
-        plt.subplot(122)
-        plt.plot(x2,y2)
+        # plt.subplot(122)
+        plt.plot(x2, y2)
         plt.show()
 
     elif dual_signal_on.get() == 0:
