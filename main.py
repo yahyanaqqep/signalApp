@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import make_interp_spline
 import numpy as np
 from tkinter import messagebox
+import comparesignals
 
 mainWindow = tkinter.Tk()
 mainWindow.title("Wave App")
@@ -14,8 +15,10 @@ mainWindow.geometry("800x500")
 tabControl = ttk.Notebook(mainWindow)
 readSignalTab = ttk.Frame(tabControl)
 createSignalTab = ttk.Frame(tabControl)
+arithmeticTab = ttk.Frame(tabControl)
 tabControl.add(readSignalTab, text="Read Signal")
 tabControl.add(createSignalTab, text="Create Signal")
+tabControl.add(arithmeticTab, text="Arithmetic Operation")
 tabControl.pack(expand=1, fill="both")
 # -------------------------------Read Signal-------------------------
 
@@ -210,6 +213,277 @@ sampling_text_2.pack_forget()
 
 # --------------------------------Second Signal end----------------
 
+
+# ---------------------------------Arithmetic Operation-------------
+add_sub_directories = []
+x_arithmetic = []
+y_arithmetic = []
+def show_arithmetic():
+    global signals_directory
+    global x_arithmetic
+    global y_arithmetic
+    if operation_radio_var.get() == 1:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2+int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        for i in range(1, len(signals_directory)):
+            file = open(signals_directory[i], 'r')
+            file = file.readlines()
+            for j in range(3, 2+int(file[2])):
+                text = file[j]
+                text = text.split(" ")
+                y_arithmetic[j-3] += float(text[1])
+        plt.plot(x_arithmetic, y_arithmetic)
+        plt.show()
+    elif operation_radio_var.get() ==2:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2 + int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        for i in range(1, len(signals_directory)):
+            file = open(signals_directory[i], 'r')
+            file = file.readlines()
+            for j in range(3, 2 + int(file[2])):
+                text = file[j]
+                text = text.split(" ")
+                y_arithmetic[j - 3] -= float(text[1])
+        plt.plot(x_arithmetic, y_arithmetic)
+        plt.show()
+    elif operation_radio_var.get() == 3:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2 + int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        const = float(multiply_signal_const.get(1.0, 'end-1c'))
+        for i in range(0, len(y_arithmetic)):
+            y_arithmetic[i] *= const
+        plt.plot(x_arithmetic,y_arithmetic)
+        plt.show()
+    elif operation_radio_var.get() == 4:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2 + int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        for i in range(0, len(y_arithmetic)):
+            y_arithmetic[i] = math.pow(y_arithmetic[i],2)
+        plt.plot(x_arithmetic, y_arithmetic)
+        plt.show()
+    elif operation_radio_var.get() == 5:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2 + int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        shift = float(multiply_signal_const.get(1.0,'end-1c'))
+        for i in range(0, len(x_arithmetic)):
+            if x_arithmetic[i]<0:
+                x_arithmetic[i] -= shift
+            elif x_arithmetic[i]>0:
+                x_arithmetic[i] += shift
+        plt.plot(x_arithmetic, y_arithmetic)
+        plt.show()
+    elif operation_radio_var.get() == 6:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2 + int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        left_max = max(y_arithmetic)
+        left_min = min(y_arithmetic)
+        left_span = left_max - left_min
+        right_span = 0
+        right_max = 0
+        right_min = 0
+        if normalization_radio_variable.get() == 1:
+            right_span = 1
+            right_max = 1
+            right_min = 0
+        elif normalization_radio_variable.get() == 2:
+            right_span = 2
+            right_max = 1
+            right_min = -1
+        for i in range(0,len(y_arithmetic)):
+            y_arithmetic[i] = ((y_arithmetic[i]-left_min)/(left_max-left_min))*right_span + right_min
+        plt.plot(x_arithmetic, y_arithmetic)
+        plt.show()
+    elif operation_radio_var.get() == 7:
+        file = open(signals_directory[0], 'r')
+        file = file.readlines()
+        for i in range(3, 2 + int(file[2])):
+            text = file[i]
+            text = text.split(" ")
+            x_arithmetic.append(float(text[0]))
+            y_arithmetic.append(float(text[1]))
+        for i in range(1,len(y_arithmetic)):
+            y_arithmetic[i] += y_arithmetic[i-1]
+        plt.plot(x_arithmetic,y_arithmetic)
+        plt.show()
+
+
+
+def show_hide_arithmetic():
+    if operation_radio_var.get() == 1 or operation_radio_var.get() == 2:
+        choose_signals_button.place(x=500, y=20)
+        choose_signals_text.place(x=0, y=20)
+        display_signal.place(x=250, y=200)
+        multiply_signal_label.place_forget()
+        multiply_signal_const.place_forget()
+        multiply_signal_file.place_forget()
+        choose_multiply.place_forget()
+        shift_signal_label.place_forget()
+        normalization_radio_one.place_forget()
+        normalization_radio_two.place_forget()
+
+
+    elif operation_radio_var.get() == 3:
+        multiply_signal_file.place(x=0, y=20)
+        choose_multiply.place(x=500,y=15)
+        multiply_signal_const.place(x=60, y=50)
+        multiply_signal_label.place(x=0, y=50)
+        display_signal.place(x=0, y=80)
+        choose_signals_text.place_forget()
+        choose_signals_button.place_forget()
+        shift_signal_label.place_forget()
+        normalization_radio_one.place_forget()
+        normalization_radio_two.place_forget()
+
+
+    elif operation_radio_var.get() == 4:
+        multiply_signal_file.place(x=0, y=20)
+        choose_multiply.place(x=500, y=15)
+        display_signal.place(x=200, y=50)
+        multiply_signal_label.place_forget()
+        multiply_signal_const.place_forget()
+        choose_signals_text.place_forget()
+        choose_signals_button.place_forget()
+        shift_signal_label.place_forget()
+        normalization_radio_one.place_forget()
+        normalization_radio_two.place_forget()
+
+
+    elif operation_radio_var.get() == 5:
+        shift_signal_label.place(x=0, y=50)
+        display_signal.place(x=0, y=80)
+        multiply_signal_file.place(x=0, y=20)
+        choose_multiply.place(x=500, y=15)
+        multiply_signal_const.place(x=40, y=50)
+        choose_signals_text.place_forget()
+        choose_signals_button.place_forget()
+        multiply_signal_label.place_forget()
+        normalization_radio_one.place_forget()
+        normalization_radio_two.place_forget()
+
+
+
+    elif operation_radio_var.get() == 6:
+        multiply_signal_file.place(x=0, y=20)
+        choose_multiply.place(x=500, y=15)
+        normalization_radio_one.place(x=20, y=40)
+        normalization_radio_two.place(x=20, y=60)
+        display_signal.place(x=20, y=120)
+        choose_signals_text.place_forget()
+        choose_signals_button.place_forget()
+        multiply_signal_label.place_forget()
+        multiply_signal_const.place_forget()
+        shift_signal_label.place_forget()
+
+    elif operation_radio_var.get() == 7:
+        multiply_signal_file.place(x=0, y=20)
+        choose_multiply.place(x=500, y=15)
+        display_signal.place(x=20, y=80)
+        choose_signals_text.place_forget()
+        choose_signals_button.place_forget()
+        multiply_signal_label.place_forget()
+        multiply_signal_const.place_forget()
+        normalization_radio_one.place_forget()
+        normalization_radio_two.place_forget()
+        shift_signal_label.place_forget()
+operation_radio_var = tkinter.IntVar(value=1)
+addition_radio_button = tkinter.Radiobutton(arithmeticTab, text="Addition", variable=operation_radio_var, value=1, command=show_hide_arithmetic)
+subtraction_radio_button = tkinter.Radiobutton(arithmeticTab, text="Subtraction", variable=operation_radio_var, value=2, command=show_hide_arithmetic)
+multiplication_radio_button = tkinter.Radiobutton(arithmeticTab, text="Multiplication", variable=operation_radio_var, value=3, command=show_hide_arithmetic)
+squaring_radio_button = tkinter.Radiobutton(arithmeticTab, text="Squaring", variable=operation_radio_var, value=4, command=show_hide_arithmetic)
+shifting_radio_button = tkinter.Radiobutton(arithmeticTab, text="Shift Signal", variable=operation_radio_var, value=5, command=show_hide_arithmetic)
+normalization_radio_button = tkinter.Radiobutton(arithmeticTab, text="Normalize", variable=operation_radio_var, value=6, command=show_hide_arithmetic)
+accumulation_radio_button = tkinter.Radiobutton(arithmeticTab, text="Accumulate", variable=operation_radio_var, value=7, command=show_hide_arithmetic)
+operation_radio_label = tkinter.Label(arithmeticTab, text="Operation")
+operation_radio_label.place(x=720, y=15)
+addition_radio_button.place(x=700, y=40)
+subtraction_radio_button.place(x=700, y=60)
+multiplication_radio_button.place(x=700, y=80)
+squaring_radio_button.place(x=700, y=100)
+shifting_radio_button.place(x=700, y=120)
+normalization_radio_button.place(x=700, y=140)
+accumulation_radio_button.place(x=700, y=160)
+multiply_signal_const = tkinter.Text(arithmeticTab, height=0, width=20)
+multiply_signal_label = tkinter.Label(arithmeticTab, text="Constant")
+multiply_signal_file = tkinter.Text(arithmeticTab, height=0, width=60)
+
+
+
+signals_directory = []
+
+
+def select_signals():
+    filetypes = (
+        ('text files', '*.txt'),
+        ('All files', '*.*')
+    )
+
+    filenames = fd.askopenfilenames(
+        title='Open files',
+        initialdir='/',
+        filetypes=filetypes)
+    # if os.path.split(filenames)[1].split('.')[1] != 'txt':
+    #     messagebox.showerror("Error!", "Please select a text file!")
+    #     return
+    global signals_directory
+    if operation_radio_var.get() == 1 or operation_radio_var.get() == 2:
+        for i in range(0, len(filenames)):
+            signals_directory.append(os.path.split(filenames[i])[0] + "/" + os.path.split(filenames[i])[1])
+            choose_signals_text.insert('1.0', signals_directory[i])
+    else:
+        for i in range(0, len(filenames)):
+            signals_directory.append(os.path.split(filenames[i])[0] + "/" + os.path.split(filenames[i])[1])
+            multiply_signal_file.insert('1.0', signals_directory[i])
+
+
+
+
+choose_multiply = tkinter.Button(arithmeticTab, text="Choose Signal", command=select_signals)
+choose_signals_button = tkinter.Button(arithmeticTab, text="Choose signal(s)", command=select_signals)
+choose_signals_text = tkinter.Text(arithmeticTab, height=10, width=60)
+display_signal = tkinter.Button(arithmeticTab, text="Show Signal", command=show_arithmetic)
+choose_signals_button.place(x=500, y=20)
+choose_signals_text.place(x=0, y=20)
+display_signal.place(x=250, y=200)
+
+
+shift_signal_label = tkinter.Label(arithmeticTab, text="Shift")
+
+normalization_radio_variable = tkinter.IntVar(value=1)
+normalization_radio_one = tkinter.Radiobutton(arithmeticTab, text="0 to 1", variable=normalization_radio_variable, value=1)
+normalization_radio_two = tkinter.Radiobutton(arithmeticTab, text="-1 to 1", variable=normalization_radio_variable, value=2)
+
+# ---------------------------------Arithmetic Operation End---------
+
 def is_float(string):
     if string.replace(".", "").isnumeric():
         return True
@@ -292,6 +566,7 @@ def draw_signal():
             x_y_spline2 = make_interp_spline(x2, y2)
             x2 = np.linspace(x2.min(), x2.max(), 500)
             y2 = x_y_spline2(x2)
+
         # plt.subplot(121)
         plt.plot(x1, y1)
         # plt.subplot(122)
@@ -321,6 +596,7 @@ def draw_signal():
             y_ = x_y_spline(x_)
             plt.plot(x_, y_)
             plt.show()
+        comparesignals.SignalSamplesAreEqual("SinOutput.txt", x, y)
 
 
 draw_signal_button = tkinter.Button(createSignalTab, text="Draw Signal", command=draw_signal)
