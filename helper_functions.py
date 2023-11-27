@@ -20,3 +20,15 @@ def save_file(signal_type, periodic, x, y, file_name):
     for i in range(0, len(x)):
         file.write(f'{x[i]} {y[i]}\n')
     file.close()
+
+
+def moving_average(x, N):
+    y = []
+    for n in range(len(x)):
+        if n < N - 1:
+            # Not enough past samples for the first few points
+            y.append(sum(x[:n+1]) / (n+1))
+        else:
+            # Compute the moving average using the window of size N
+            y.append(sum(x[n-N+1:n+1]) / N)
+    return y

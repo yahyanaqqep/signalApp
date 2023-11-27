@@ -25,13 +25,15 @@ createSignalTab = ttk.Frame(tabControl)
 arithmeticTab = ttk.Frame(tabControl)
 quantizeTab = ttk.Frame(tabControl)
 frequencyDomain = ttk.Frame(tabControl)
+time_domain_tab = ttk.Frame(tabControl)
 tabControl.add(readSignalTab, text="Read Signal")
 tabControl.add(createSignalTab, text="Create Signal")
 tabControl.add(arithmeticTab, text="Arithmetic Operation")
 tabControl.add(quantizeTab, text="Quantize Signal")
 tabControl.add(frequencyDomain, text='Frequency Domain')
+tabControl.add(time_domain_tab, text='Time Domain')
 tabControl.pack(expand=1, fill="both")
-# -------------------------------Read Signal-------------------------
+# ---------------------------------Read Signal---------------------------
 
 openSignalDirectory = tkinter.Text(readSignalTab, height=0, width=85)
 openSignalDirectory.place(x=0, y=20)
@@ -120,7 +122,9 @@ def read_signal():
 print_signal_button = tkinter.Button(readSignalTab, text="Print Signal", command=read_signal)
 print_signal_button.place(x=700, y=50)
 
-# -----------------------------------------------Create Signal----------------------------------------------
+# ---------------------------------Read Signal end-----------------------
+
+# ---------------------------------Create Signal-------------------------
 
 
 tkinter.Label(createSignalTab, text="Wave Type:").place(x=20, y=10)
@@ -141,9 +145,9 @@ analog_text.place(x=130, y=130)
 tkinter.Label(createSignalTab, text="Sampling Frequency:").place(x=20, y=160)
 sampling_text = tkinter.Text(createSignalTab, height=0, width=10)
 sampling_text.place(x=140, y=160)
+# ---------------------------------Create Signal end---------------------
 
-
-# ----------------------------Second Signal-------------------------
+# ---------------------------------Second Signal-------------------------
 
 
 def activate_second_signal():
@@ -220,11 +224,9 @@ analog_frequency_label_2.pack_forget()
 analog_text_2.pack_forget()
 sampling_label_2.pack_forget()
 sampling_text_2.pack_forget()
+# ---------------------------------Second Signal end---------------------
 
-# --------------------------------Second Signal end----------------
-
-
-# ---------------------------------Arithmetic Operation-------------
+# ---------------------------------Arithmetic Operation------------------
 add_sub_directories = []
 x_arithmetic = []
 y_arithmetic = []
@@ -495,7 +497,7 @@ normalization_radio_two = tkinter.Radiobutton(arithmeticTab, text="-1 to 1", var
                                               value=2)
 
 
-# ---------------------------------Arithmetic Operation End---------
+# ---------------------------------Arithmetic Operation End--------------
 
 
 def is_float(string):
@@ -616,8 +618,7 @@ def draw_signal():
 
 draw_signal_button = tkinter.Button(createSignalTab, text="Draw Signal", command=draw_signal)
 draw_signal_button.place(x=80, y=190)
-
-# ---------------------------------Quantize Signal----------------------------------------------------
+# ---------------------------------Quantize Signal-----------------------
 quantize_direc = ""
 
 
@@ -767,9 +768,9 @@ quantize_btn.pack()
 task3_2.pack()
 
 
-# ---------------------------------Quantize Signal End------------------------------------------------
+# ---------------------------------Quantize Signal End-------------------
 
-# ---------------------------------Frequency Domain---------------------------------------------------
+# ---------------------------------Frequency Domain----------------------
 
 def convert_time_to_freq(x_in, y_in, sampling, operation):
     if operation == 0:
@@ -933,7 +934,7 @@ def removeDC():
         x_vals.append(int(file[i].split(' ')[0].split('f')[0]))
         y_vals.append(float(file[i].split(' ')[1].split('f')[0]))
     avg = sum(y_vals)/len(y_vals)
-    for i in range(len(y_vals)):
+    for i in range(len(y_vals)):    #y[i]-average(y)
         y_vals[i]-=avg
     comparesignal2.SignalSamplesAreEqual('D:\signalApp\Remove DC component\DC_component_output.txt', y_vals)
     values_win = tkinter.Tk()
@@ -984,4 +985,12 @@ m_coefficients.pack()
 applyDCTbtn.pack()
 saveDct.pack()
 removeDCbtn.pack()
+# ---------------------------------Frequency Domain End------------------
+
+# ---------------------------------Time domain---------------------------
+time_domain_selected = tkinter.StringVar(value='Smoothing')
+time_domain_options = tkinter.OptionMenu(time_domain_tab,time_domain_selected, 'Smoothing', 'Sharpening', 'Delay or Advance', 'Fold Signal', 'Remove DC')
+tkinter.Label(time_domain_tab,text='Options: ').pack()
+time_domain_options.pack()
+# ---------------------------------Time domain end-----------------------
 mainWindow.mainloop()
