@@ -15,6 +15,8 @@ import QuanTest2
 from helper_functions import *
 import tksheet
 import comparesignal2
+import DerivativeSignal
+import Shift_Fold_Signal
 
 mainWindow = tkinter.Tk()
 mainWindow.title("Wave App")
@@ -988,9 +990,148 @@ removeDCbtn.pack()
 # ---------------------------------Frequency Domain End------------------
 
 # ---------------------------------Time domain---------------------------
+time_domain_directory = None
+
+
+def browse_time_domain():
+    global time_domain_directory
+    time_domain_directory = browse_file()
+    time_domain_file_directory.insert('1.0', time_domain_directory)
+
+
+def apply_time_domain():
+    if time_domain_selected.get() == 'Smoothing':
+        x_time, y_time = get_signal(time_domain_directory)
+        n = int(number_of_points_included.get())
+        smoothed = moving_average(y_time, n)
+        smoothed = smoothed[n-1:]
+        print(smoothed)
+        print(len(smoothed))
+        print(len(x_time))
+        comparesignals.SignalSamplesAreEqual('D:\signalApp\Moving Average\OutMovAvgTest2.txt',x_time, smoothed)
+    elif time_domain_selected.get() == 'Sharpening':
+        DerivativeSignal.DerivativeSignal()
+    elif time_domain_selected.get() == 'Delay or Advance':
+        x_time, y_time = get_signal(time_domain_directory)
+        n = int(number_of_points_included.get())
+        if fbs_var.get() == 1:
+            y_time = fold_signal(y_time)
+        x_time = shift_signal(x_time, n)
+        print(x_time)
+        print(y_time)
+        Shift_Fold_Signal.Shift_Fold_Signal('D:\signalApp\Shifting and Folding\Output_ShifFoldedby500.txt',x_time,y_time)
+
+    elif time_domain_selected.get() == 'Fold Signal':
+        x_time, y_time = get_signal(time_domain_directory)
+        y_time = fold_signal(y_time)
+        print(x_time)
+        print(y_time)
+        Shift_Fold_Signal.Shift_Fold_Signal('D:\signalApp\Shifting and Folding\Output_fold.txt', x_time, y_time)
+
+
+    elif time_domain_selected.get() == 'Remove DC':
+        x_time, y_time = get_signal(time_domain_directory)
+        y_new = conv_to_freq(y_time)
+        shifted = remove_dc_freq(y_new)
+        print(shifted)
+
+
+def switch_time_domain(option):
+    if option == 'Smoothing':
+        shift_value_label.pack_forget()
+        fold_before_shift.pack_forget()
+        number_of_points_included.pack_forget()
+        file_label.pack_forget()
+        time_domain_file_directory.pack_forget()
+        time_domain_choose_file_btn.pack_forget()
+        number_of_points_label.pack_forget()
+        number_of_points_included.pack_forget()
+        apply_time_domain_btn.pack_forget()
+        file_label.pack()
+        time_domain_file_directory.pack()
+        time_domain_choose_file_btn.pack()
+        number_of_points_label.pack()
+        number_of_points_included.pack()
+        apply_time_domain_btn.pack()
+
+    elif option == 'Sharpening':
+        file_label.pack_forget()
+        time_domain_file_directory.pack_forget()
+        time_domain_choose_file_btn.pack_forget()
+        number_of_points_label.pack_forget()
+        number_of_points_included.pack_forget()
+        shift_value_label.pack_forget()
+        fold_before_shift.pack_forget()
+        apply_time_domain_btn.pack_forget()
+        apply_time_domain_btn.pack()
+
+    elif option == 'Delay or Advance':
+
+        number_of_points_label.pack_forget()
+        file_label.pack_forget()
+        time_domain_file_directory.pack_forget()
+        time_domain_choose_file_btn.pack_forget()
+        shift_value_label.pack_forget()
+        number_of_points_included.pack_forget()
+        fold_before_shift.pack_forget()
+        apply_time_domain_btn.pack_forget()
+        file_label.pack()
+        time_domain_file_directory.pack()
+        time_domain_choose_file_btn.pack()
+        shift_value_label.pack()
+        number_of_points_included.pack()
+        fold_before_shift.pack()
+        apply_time_domain_btn.pack()
+
+    elif option == 'Fold Signal':
+        fold_before_shift.pack_forget()
+        number_of_points_label.pack_forget()
+        shift_value_label.pack_forget()
+        number_of_points_included.pack_forget()
+        file_label.pack_forget()
+        time_domain_file_directory.pack_forget()
+        time_domain_choose_file_btn.pack_forget()
+        apply_time_domain_btn.pack_forget()
+        file_label.pack()
+        time_domain_file_directory.pack()
+        time_domain_choose_file_btn.pack()
+        apply_time_domain_btn.pack()
+    elif option == 'Remove DC':
+        fold_before_shift.pack_forget()
+        number_of_points_label.pack_forget()
+        shift_value_label.pack_forget()
+        number_of_points_included.pack_forget()
+        file_label.pack_forget()
+        time_domain_file_directory.pack_forget()
+        time_domain_choose_file_btn.pack_forget()
+        apply_time_domain_btn.pack_forget()
+        file_label.pack()
+        time_domain_file_directory.pack()
+        time_domain_choose_file_btn.pack()
+        apply_time_domain_btn.pack()
+
+
 time_domain_selected = tkinter.StringVar(value='Smoothing')
-time_domain_options = tkinter.OptionMenu(time_domain_tab,time_domain_selected, 'Smoothing', 'Sharpening', 'Delay or Advance', 'Fold Signal', 'Remove DC')
+time_domain_options = tkinter.OptionMenu(time_domain_tab,time_domain_selected, 'Smoothing', 'Sharpening', 'Delay or Advance', 'Fold Signal', 'Remove DC', command=switch_time_domain)
+file_label = tkinter.Label(time_domain_tab, text="Signal Directory")
+time_domain_file_directory = tkinter.Text(time_domain_tab,width=80, height=0)
+time_domain_choose_file_btn = tkinter.Button(time_domain_tab, text="Choose File", command=browse_time_domain)
+number_of_points_label = tkinter.Label(time_domain_tab, text='Number of points included in averaging')
+number_of_points_included = tkinter.Entry(time_domain_tab)
+apply_time_domain_btn = tkinter.Button(time_domain_tab, text="Apply", command=apply_time_domain)
+shift_value_label = tkinter.Label(time_domain_tab, text='Shift Value')
+fbs_var = tkinter.IntVar(value=0)
+fold_before_shift = tkinter.Checkbutton(time_domain_tab, text='Fold: ', variable=fbs_var, onvalue=1, offvalue=0)
 tkinter.Label(time_domain_tab,text='Options: ').pack()
 time_domain_options.pack()
+file_label.pack()
+time_domain_file_directory.pack()
+time_domain_choose_file_btn.pack()
+number_of_points_label.pack()
+number_of_points_included.pack()
+apply_time_domain_btn.pack()
+
+
+
 # ---------------------------------Time domain end-----------------------
 mainWindow.mainloop()
