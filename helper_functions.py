@@ -112,6 +112,30 @@ def conv_to_freq(signal):
         out.append(num)
     return out
 
+
+def convolve(x_signal1, x_signal2, y_signal1, y_signal2):
+    convolved_signal = []
+    n_minimum_limit = x_signal1[0] + x_signal2[0]
+    n_max_limit = x_signal1[len(x_signal1)-1] + x_signal2[len(x_signal2)-1]
+    for i in range(int(n_minimum_limit),int(n_max_limit + 1)):
+        yi = 0
+        k = x_signal1[0]
+        while i-k > x_signal2[0]-1 and k < x_signal1[len(x_signal1)-1]+1:
+            if i-k > x_signal2[len(x_signal2)-1] or k < x_signal1[0]:
+                k += 1
+                continue
+            index_of_y_signal1 = x_signal1.index(k)
+            index_of_y_signal2 = x_signal2.index(i-k)
+            yi += y_signal1[index_of_y_signal1]*y_signal2[index_of_y_signal2]
+            k += 1
+        convolved_signal.append(yi)
+
+    return list(range(int(n_minimum_limit),int(n_max_limit + 1) )), convolved_signal
+
+
+print(convolve([-2,-1,0,1],[0,1,2,3,4,5],[1,2,1,1],[1,-1,0,0,1,1]))
+
+
 # def conv_to_time(signal):
 #     out = []
 #     for i in range(0,len(signal)):

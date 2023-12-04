@@ -17,6 +17,7 @@ import tksheet
 import comparesignal2
 import DerivativeSignal
 import Shift_Fold_Signal
+import ConvTest
 
 mainWindow = tkinter.Tk()
 mainWindow.title("Wave App")
@@ -49,20 +50,9 @@ continious_radio_button.place(x=20, y=60)
 
 
 def select_files():
-    filetypes = (
-        ('text files', '*.txt'),
-        ('All files', '*.*')
-    )
 
-    filenames = fd.askopenfilename(
-        title='Open files',
-        initialdir='/',
-        filetypes=filetypes)
-    if os.path.split(filenames)[1].split('.')[1] != 'txt':
-        messagebox.showerror("Error!", "Please select a text file!")
-        return
     global dirc
-    dirc = os.path.split(filenames)[0] + "/" + os.path.split(filenames)[1]
+    dirc = browse_file()
     openSignalDirectory.insert("1.0", dirc)
     """
     showinfo(
@@ -625,20 +615,9 @@ quantize_direc = ""
 
 
 def quantize_dir():
-    filetypes = (
-        ('text files', '*.txt'),
-        ('All files', '*.*')
-    )
 
-    filenames = fd.askopenfilename(
-        title='Open files',
-        initialdir='/',
-        filetypes=filetypes)
-    if os.path.split(filenames)[1].split('.')[1] != 'txt':
-        messagebox.showerror("Error!", "Please select a text file!")
-        return
     global quantize_direc
-    quantize_direc = os.path.split(filenames)[0] + "/" + os.path.split(filenames)[1]
+    quantize_direc = browse_file()
     quantize_directory.insert("1.0", quantize_direc)
 
 
@@ -843,20 +822,8 @@ frequency_file = None
 
 
 def choose_frequency_file():
-    filetypes = (
-        ('text files', '*.txt'),
-        ('All files', '*.*')
-    )
-
-    filenames = fd.askopenfilename(
-        title='Open files',
-        initialdir='/',
-        filetypes=filetypes)
-    if os.path.split(filenames)[1].split('.')[1] != 'txt':
-        messagebox.showerror("Error!", "Please select a text file!")
-        return
     global frequency_file
-    frequency_file = os.path.split(filenames)[0] + "/" + os.path.split(filenames)[1]
+    frequency_file = browse_file()
     frequency_file_directory.insert(1, frequency_file)
     if open(frequency_file, 'r').readlines()[1].split('\n')[0] == '1':
         label1.pack_forget()
@@ -991,12 +958,16 @@ removeDCbtn.pack()
 
 # ---------------------------------Time domain---------------------------
 time_domain_directory = None
-
+convolution_second_signal = None
 
 def browse_time_domain():
     global time_domain_directory
     time_domain_directory = browse_file()
     time_domain_file_directory.insert('1.0', time_domain_directory)
+def browse_convolution_second_signal():
+    global convolution_second_signal
+    convolution_second_signal = browse_file()
+    second_signal_directory.insert('1.0', convolution_second_signal)
 
 
 def apply_time_domain():
@@ -1034,6 +1005,12 @@ def apply_time_domain():
         y_new = conv_to_freq(y_time)
         shifted = remove_dc_freq(y_new)
         print(shifted)
+    elif time_domain_selected.get() == 'Convolution':
+        x1, y1 = get_signal(time_domain_directory)
+        x2, h = get_signal(convolution_second_signal)
+        x_conv, y_conv = convolve(x1, x2, y1, h)
+        ConvTest.ConvTest(x_conv, y_conv)
+
 
 
 def switch_time_domain(option):
@@ -1047,6 +1024,10 @@ def switch_time_domain(option):
         number_of_points_label.pack_forget()
         number_of_points_included.pack_forget()
         apply_time_domain_btn.pack_forget()
+        first_signal_label.pack_forget()
+        second_signal_label.pack_forget()
+        second_signal_directory.pack_forget()
+        second_signal_directory_btn.pack_forget()
         file_label.pack()
         time_domain_file_directory.pack()
         time_domain_choose_file_btn.pack()
@@ -1063,6 +1044,10 @@ def switch_time_domain(option):
         shift_value_label.pack_forget()
         fold_before_shift.pack_forget()
         apply_time_domain_btn.pack_forget()
+        first_signal_label.pack_forget()
+        second_signal_label.pack_forget()
+        second_signal_directory.pack_forget()
+        second_signal_directory_btn.pack_forget()
         apply_time_domain_btn.pack()
 
     elif option == 'Delay or Advance':
@@ -1075,6 +1060,10 @@ def switch_time_domain(option):
         number_of_points_included.pack_forget()
         fold_before_shift.pack_forget()
         apply_time_domain_btn.pack_forget()
+        first_signal_label.pack_forget()
+        second_signal_label.pack_forget()
+        second_signal_directory.pack_forget()
+        second_signal_directory_btn.pack_forget()
         file_label.pack()
         time_domain_file_directory.pack()
         time_domain_choose_file_btn.pack()
@@ -1092,6 +1081,10 @@ def switch_time_domain(option):
         time_domain_file_directory.pack_forget()
         time_domain_choose_file_btn.pack_forget()
         apply_time_domain_btn.pack_forget()
+        first_signal_label.pack_forget()
+        second_signal_label.pack_forget()
+        second_signal_directory.pack_forget()
+        second_signal_directory_btn.pack_forget()
         file_label.pack()
         time_domain_file_directory.pack()
         time_domain_choose_file_btn.pack()
@@ -1105,14 +1098,37 @@ def switch_time_domain(option):
         time_domain_file_directory.pack_forget()
         time_domain_choose_file_btn.pack_forget()
         apply_time_domain_btn.pack_forget()
+        first_signal_label.pack_forget()
+        second_signal_label.pack_forget()
+        second_signal_directory.pack_forget()
+        second_signal_directory_btn.pack_forget()
         file_label.pack()
         time_domain_file_directory.pack()
         time_domain_choose_file_btn.pack()
         apply_time_domain_btn.pack()
+    elif option == 'Convolution':
+        fold_before_shift.pack_forget()
+        number_of_points_label.pack_forget()
+        shift_value_label.pack_forget()
+        number_of_points_included.pack_forget()
+        file_label.pack_forget()
+        time_domain_file_directory.pack_forget()
+        time_domain_choose_file_btn.pack_forget()
+        apply_time_domain_btn.pack_forget()
+        second_signal_label.pack_forget()
+        second_signal_directory.pack_forget()
+        second_signal_directory_btn.pack_forget()
+        first_signal_label.pack()
+        time_domain_file_directory.pack()
+        time_domain_choose_file_btn.pack()
+        second_signal_label.pack()
+        second_signal_directory.pack()
+        second_signal_directory_btn.pack()
+        apply_time_domain_btn.pack()
 
 
 time_domain_selected = tkinter.StringVar(value='Smoothing')
-time_domain_options = tkinter.OptionMenu(time_domain_tab,time_domain_selected, 'Smoothing', 'Sharpening', 'Delay or Advance', 'Fold Signal', 'Remove DC', command=switch_time_domain)
+time_domain_options = tkinter.OptionMenu(time_domain_tab,time_domain_selected, 'Smoothing', 'Sharpening', 'Delay or Advance', 'Fold Signal', 'Remove DC', 'Convolution', command=switch_time_domain)
 file_label = tkinter.Label(time_domain_tab, text="Signal Directory")
 time_domain_file_directory = tkinter.Text(time_domain_tab,width=80, height=0)
 time_domain_choose_file_btn = tkinter.Button(time_domain_tab, text="Choose File", command=browse_time_domain)
@@ -1122,6 +1138,10 @@ apply_time_domain_btn = tkinter.Button(time_domain_tab, text="Apply", command=ap
 shift_value_label = tkinter.Label(time_domain_tab, text='Shift Value')
 fbs_var = tkinter.IntVar(value=0)
 fold_before_shift = tkinter.Checkbutton(time_domain_tab, text='Fold: ', variable=fbs_var, onvalue=1, offvalue=0)
+first_signal_label = tkinter.Label(time_domain_tab, text='First Signal:')
+second_signal_label = tkinter.Label(time_domain_tab, text='Second Signal:')
+second_signal_directory = tkinter.Text(time_domain_tab, height=0, width=80)
+second_signal_directory_btn = tkinter.Button(time_domain_tab, text='Choose File', command=browse_convolution_second_signal)
 tkinter.Label(time_domain_tab,text='Options: ').pack()
 time_domain_options.pack()
 file_label.pack()
@@ -1130,7 +1150,6 @@ time_domain_choose_file_btn.pack()
 number_of_points_label.pack()
 number_of_points_included.pack()
 apply_time_domain_btn.pack()
-
 
 
 # ---------------------------------Time domain end-----------------------
