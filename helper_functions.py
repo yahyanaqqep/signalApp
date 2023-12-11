@@ -133,11 +133,19 @@ def convolve(x_signal1, x_signal2, y_signal1, y_signal2):
     return list(range(int(n_minimum_limit),int(n_max_limit + 1) )), convolved_signal
 
 
-print(convolve([-2,-1,0,1],[0,1,2,3,4,5],[1,2,1,1],[1,-1,0,0,1,1]))
+def get_correlation(signal1, signal2):
+    denominator = (1/len(signal1))*math.sqrt(sum([x**2 for x in signal1])*sum([x**2 for x in signal2]))
+    corr_out = []
+    for j in range(0, len(signal1)+1):
+        nums = []
+        for n in range(0, len(signal1)):
+            index = n+j
+            if n+j >= len(signal2):
+                index = (n+j)-len(signal2)
+            nums.append(signal1[n]*signal2[index])
+        corr_out.append((1/len(signal2))*sum(nums))
+    corr_out = [x/denominator for x in corr_out]
+    return corr_out
 
 
-# def conv_to_time(signal):
-#     out = []
-#     for i in range(0,len(signal)):
-#         for j in range(0,len(signal)):
-#
+

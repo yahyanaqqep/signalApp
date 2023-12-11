@@ -29,12 +29,14 @@ arithmeticTab = ttk.Frame(tabControl)
 quantizeTab = ttk.Frame(tabControl)
 frequencyDomain = ttk.Frame(tabControl)
 time_domain_tab = ttk.Frame(tabControl)
+correlation_tab = ttk.Frame(tabControl)
 tabControl.add(readSignalTab, text="Read Signal")
 tabControl.add(createSignalTab, text="Create Signal")
 tabControl.add(arithmeticTab, text="Arithmetic Operation")
 tabControl.add(quantizeTab, text="Quantize Signal")
 tabControl.add(frequencyDomain, text='Frequency Domain')
 tabControl.add(time_domain_tab, text='Time Domain')
+tabControl.add(correlation_tab, text='Correlation')
 tabControl.pack(expand=1, fill="both")
 # ---------------------------------Read Signal---------------------------
 
@@ -1153,4 +1155,40 @@ apply_time_domain_btn.pack()
 
 
 # ---------------------------------Time domain end-----------------------
+
+# ---------------------------------Correlation---------------------------
+corr_dir = []
+
+
+def choose_correlation_signal():
+    corr_dir.clear()
+    corr_dir.append(browse_file())
+    first_correlation_dir.insert('1.0', corr_dir[0])
+
+
+def choose_correlation_signal_2():
+    corr_dir.append(browse_file())
+    second_correlation_dir.insert('1.0', corr_dir[1])
+
+
+def apply_cross_correlation():
+    x1, y1 = get_signal(corr_dir[0])
+    x2, y2 = get_signal(corr_dir[1])
+    corr_signal = get_correlation(y1, y2)
+    print(corr_signal)
+
+
+tkinter.Label(correlation_tab, text='First Signal:').pack()
+first_correlation_dir = tkinter.Text(correlation_tab, height=0, width=80)
+first_correlation_dir.pack()
+first_correlation_btn = tkinter.Button(correlation_tab, text="Choose File", command=choose_correlation_signal)
+first_correlation_btn.pack()
+tkinter.Label(correlation_tab, text='Second Signal:').pack()
+second_correlation_dir = tkinter.Text(correlation_tab, height=0, width=80)
+second_correlation_dir.pack()
+second_correlation_btn = tkinter.Button(correlation_tab, text="Choose File", command=choose_correlation_signal_2)
+second_correlation_btn.pack()
+apply_correlation_btn = tkinter.Button(correlation_tab, text='Apply cross correlation', command=apply_cross_correlation)
+apply_correlation_btn.pack()
+# ---------------------------------Correlation end-----------------------
 mainWindow.mainloop()
