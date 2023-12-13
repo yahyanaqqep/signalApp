@@ -18,6 +18,7 @@ import comparesignal2
 import DerivativeSignal
 import Shift_Fold_Signal
 import ConvTest
+import CompareSignal
 
 mainWindow = tkinter.Tk()
 mainWindow.title("Wave App")
@@ -1174,8 +1175,9 @@ def choose_correlation_signal_2():
 def apply_cross_correlation():
     x1, y1 = get_signal(corr_dir[0])
     x2, y2 = get_signal(corr_dir[1])
-    corr_signal = get_correlation(y1, y2)
+    corr_signal = get_correlation(y1, y2, isPeriodic(corr_dir[1]))
     print(corr_signal)
+    CompareSignal.Compare_Signals('D:\signalApp\Point1 Correlation\CorrOutput.txt', x1, corr_signal)
 
 
 tkinter.Label(correlation_tab, text='First Signal:').pack()
