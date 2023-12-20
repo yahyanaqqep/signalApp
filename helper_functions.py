@@ -1,8 +1,10 @@
 import math
+import cmath
 import numpy as np
 from tkinter import messagebox
 from tkinter import filedialog as fd
 import os.path
+import numpy
 
 def dct(x, y, k):
     sum_arr = []
@@ -106,10 +108,16 @@ def get_signal(path):
 def conv_to_freq(signal):
     out = []
     for i in range(0, len(signal)):
-        num = complex(0, 0)
+        my_num = []
         for j in range(0, len(signal)):
-            num += complex(math.cos((-2*math.pi*i*j)/len(signal)), math.sin((-2*math.pi*i*j)/len(signal)))
-        out.append(num)
+            if i == 0 or j == 0:
+                my_num.append(signal[j]+0j)
+            else:
+                num1 = cmath.cos((-2*cmath.pi*i*j)/len(signal))
+                num2 = cmath.sin((-2*cmath.pi*i*j)/len(signal))
+                my_num.append((signal[j]*(num1+num2*1j)))
+        my_num = round(sum(my_num).real, 3)+round(sum(my_num).imag, 3)*1j
+        out.append(my_num)
     return out
 
 
@@ -133,7 +141,7 @@ def convolve(x_signal1, x_signal2, y_signal1, y_signal2):
     return list(range(int(n_minimum_limit),int(n_max_limit + 1) )), convolved_signal
 
 
-def isPeriodic(path):
+def is_periodic(path):
     file = open(path, 'r')
     file = file.readlines()
     if file[1].split('\n')[0] == '1':
@@ -162,4 +170,62 @@ def get_correlation(signal1, signal2, periodic):
     return corr_out
 
 
+def conv_to_time(signal):
+    out = []
+    for n in range(0, len(signal)):
+        current = 0+0j
+        for k in range(0, len(signal)):
+            current += signal[k] * (cmath.cos(2*cmath.pi*n*k/len(signal))+cmath.sin(2*cmath.pi*n*k/len(signal))*1j)
 
+        current = current/len(signal)
+        current = round(current.real, 3) + round(current.imag, 3)*1j
+        to_be_appended = current.real + (current.imag * -1)
+        out.append(to_be_appended)
+    return out
+
+
+def fast_convolution(signal1, signal2):
+    len_zeroes_signal1 = (len(signal1) + len(signal2) -1)-len(signal1)
+    len_zeroes_signal2 = (len(signal1) + len(signal2) - 1) - len(signal2)
+    for i in range(0, len_zeroes_signal1):
+        signal1.append(0)
+    for i in range(0, len_zeroes_signal2):
+        signal2.append(0)
+    signal1_freq = numpy.array(conv_to_freq(signal1))
+    signal2_freq = numpy.array(conv_to_freq(signal2))
+    convolved_signal = numpy.multiply(signal1_freq, signal2_freq)
+    return conv_to_time(convolved_signal)
+
+
+def fast_auto_correlation(signal):
+    signal_freq = conv_to_freq(signal)
+    signal_freq_dash = [complex(i.real, -i.imag) for i in signal_freq]
+    fd = []
+    out = []
+    for i in range(0, len(signal_freq)):
+        num = signal_freq[i] * signal_freq_dash[i]
+        num = num.real + (num.imag*-1)
+        fd.append(num)
+    for i in range(0, len(fd)):
+        current = 0
+        for j in range(0, len(fd)):
+            current += fd[j]*complex(round(math.cos(2*math.pi*i*j/len(fd))), round(math.sin(2*math.pi*i*j/len(fd))))
+        current = current/len(fd)
+        out.append(current)
+    return [x.real/len(fd) for x in out]
+
+
+def fast_cross_correlation(signal1, signal2, is_periodic):
+    signal1_freq = conv_to_freq(signal1)
+    signal2_freq = conv_to_freq(signal2)
+    signal1_conjugate = [i.real - i.imag*1j for i in signal1_freq]
+    signal1_conjugate = np.array(signal1_conjugate)
+    signal2_freq = np.array(signal2_freq)
+    out = np.multiply(signal1_conjugate, signal2_freq)
+    num_to_divide_by = cmath.sqrt(sum([x**2 for x in signal1])*sum([x**2 for x in signal2]))/len(signal1)
+    out = [numpy.round((x/len(signal1)), 3) for x in out]
+    return conv_to_time(out)
+
+
+print(fast_cross_correlation([2, 1, 0, 0, 3], [3, 2, 1, 1, 5], True))
+# print(fast_auto_correlation([1,0,0,1]))

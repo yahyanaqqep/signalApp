@@ -933,30 +933,110 @@ def removeDC():
     values_win.mainloop()
     save_file(0, 0, x_vals, y_vals, "removed DC signal.txt")
 
+conv_file_1 = None
+conv_file_2 = None
+def choose_conv_file_1():
+    global conv_file_1
+    conv_file_1 = browse_file()
+    fast_convolution_first_signal.insert('1.0', conv_file_1)
+
+def choose_conv_file_2():
+    global conv_file_2
+    conv_file_2 = browse_file()
+    fast_convolution_second_signal.insert('1.0', conv_file_2)
+
+def apply_fast_convolution():
+    signal1_x, signal1_y = get_signal(conv_file_1)
+    signal2_x, signal2_y = get_signal(conv_file_2)
+    ind1 = int(signal1_x[0] + signal2_x[0])
+    ind2 = int(signal2_x[len(signal2_x)-1] + signal1_x[len(signal1_x)-1])
+    x_out = list(range(ind1, ind2))
+    y_out = fast_convolution(signal1_y, signal2_y)
+    ConvTest.ConvTest(x_out, y_out)
+    print(y_out)
+
+corr_file_1 = None
+corr_file_2 = None
+
+def choose_corr_file_1():
+    global corr_file_1
+    corr_file_1 = browse_file()
+    fast_correlation_first_signal.insert('1.0', corr_file_1)
+
+def choose_corr_file_2():
+    global corr_file_2
+    corr_file_2 = browse_file()
+    fast_correlation_second_signal.insert('1.0', corr_file_2)
+
+
+def apply_fast_correlation():
+    signal1_x, signal1_y = get_signal(corr_file_1)
+    if corr_file_2 is not None:
+        signal2_x, signal2_y = get_signal(corr_file_2)
+        y_o = fast_cross_correlation(signal1_y, signal2_y, True)
+        print(y_o)
+        CompareSignal.Compare_Signals('D:\signalApp\Corr_Output.txt', signal1_x, y_o)
+    else:
+        y_o = fast_auto_correlation(signal1_y)
+        print(y_o)
 
 
 
-tkinter.Label(frequencyDomain, text="Signal Directory:").pack()
-frequency_file_directory = tkinter.Entry(frequencyDomain, width=100)
-select_frequency_file_button = tkinter.Button(frequencyDomain, text="Choose Signal", command=choose_frequency_file)
+tabControl_frequency_domain = ttk.Notebook(frequencyDomain)
+dct_tab = ttk.Frame(tabControl_frequency_domain)
+fast_convolution_tab = ttk.Frame(tabControl_frequency_domain)
+fast_correlation_tab = ttk.Frame(tabControl_frequency_domain)
+tabControl_frequency_domain.add(dct_tab, text='DCT')
+tabControl_frequency_domain.add(fast_convolution_tab, text='Fast Convolution')
+tabControl_frequency_domain.add(fast_correlation_tab, text='Fast Correlation')
+tabControl_frequency_domain.pack(expand=1, fill="both")
+tkinter.Label(dct_tab, text="Signal Directory:").pack()
+frequency_file_directory = tkinter.Entry(dct_tab, width=100)
+select_frequency_file_button = tkinter.Button(dct_tab, text="Choose Signal", command=choose_frequency_file)
 
 frequency_file_directory.pack()
 select_frequency_file_button.pack()
-label1 = tkinter.Label(frequencyDomain, text="Sampling Frequency")
+label1 = tkinter.Label(dct_tab, text="Sampling Frequency")
 label1.pack()
-sampling_frequency = tkinter.Entry(frequencyDomain)
+sampling_frequency = tkinter.Entry(dct_tab)
 sampling_frequency.pack()
-applyDFTbtn = tkinter.Button(frequencyDomain, text='Apply DFT', command=apply_DFT)
+applyDFTbtn = tkinter.Button(dct_tab, text='Apply DFT', command=apply_DFT)
 applyDFTbtn.pack()
-applyDCTbtn = tkinter.Button(frequencyDomain, text='Apply DCT',command=apply_DCT)
-tkinter.Label(frequencyDomain, text='number of coefficients to be saved').pack()
-m_coefficients = tkinter.Entry(frequencyDomain)
-saveDct = tkinter.Button(frequencyDomain, text='Save DCT', command=save_dct)
-removeDCbtn = tkinter.Button(frequencyDomain, text="Remove DC Component", command=removeDC)
+applyDCTbtn = tkinter.Button(dct_tab, text='Apply DCT',command=apply_DCT)
+tkinter.Label(dct_tab, text='number of coefficients to be saved').pack()
+m_coefficients = tkinter.Entry(dct_tab)
+saveDct = tkinter.Button(dct_tab, text='Save DCT', command=save_dct)
+removeDCbtn = tkinter.Button(dct_tab, text="Remove DC Component", command=removeDC)
 m_coefficients.pack()
 applyDCTbtn.pack()
 saveDct.pack()
 removeDCbtn.pack()
+tkinter.Label(fast_convolution_tab, text='First Signal:').pack()
+fast_convolution_first_signal = tkinter.Text(fast_convolution_tab, height=0, width=80)
+fast_convolution_first_signal.pack()
+fast_convolution_first_signal_button = tkinter.Button(fast_convolution_tab, text='Choose File', command=choose_conv_file_1)
+fast_convolution_first_signal_button.pack()
+tkinter.Label(fast_convolution_tab, text='Second Signal:').pack()
+fast_convolution_second_signal = tkinter.Text(fast_convolution_tab, height=0, width=80)
+fast_convolution_second_signal.pack()
+fast_convolution_second_signal_button = tkinter.Button(fast_convolution_tab, text='Choose File', command=choose_conv_file_2)
+fast_convolution_second_signal_button.pack()
+apply_fast_convolution_btn = tkinter.Button(fast_convolution_tab, text='Apply', command=apply_fast_convolution)
+apply_fast_convolution_btn.pack()
+
+
+tkinter.Label(fast_correlation_tab, text='First Signal:').pack()
+fast_correlation_first_signal = tkinter.Text(fast_correlation_tab, height=0, width=80)
+fast_correlation_first_signal.pack()
+fast_correlation_first_signal_button = tkinter.Button(fast_correlation_tab, text='Choose File', command=choose_corr_file_1)
+fast_correlation_first_signal_button.pack()
+tkinter.Label(fast_correlation_tab, text='Second Signal:').pack()
+fast_correlation_second_signal = tkinter.Text(fast_correlation_tab, height=0, width=80)
+fast_correlation_second_signal.pack()
+fast_correlation_second_signal_button = tkinter.Button(fast_correlation_tab, text='Choose File', command=choose_corr_file_2)
+fast_correlation_second_signal_button.pack()
+apply_fast_correlation_btn = tkinter.Button(fast_correlation_tab, text='Apply', command=apply_fast_correlation)
+apply_fast_correlation_btn.pack()
 # ---------------------------------Frequency Domain End------------------
 
 # ---------------------------------Time domain---------------------------
@@ -1175,7 +1255,7 @@ def choose_correlation_signal_2():
 def apply_cross_correlation():
     x1, y1 = get_signal(corr_dir[0])
     x2, y2 = get_signal(corr_dir[1])
-    corr_signal = get_correlation(y1, y2, isPeriodic(corr_dir[1]))
+    corr_signal = get_correlation(y1, y2, is_periodic(corr_dir[1]))
     print(corr_signal)
     CompareSignal.Compare_Signals('D:\signalApp\Point1 Correlation\CorrOutput.txt', x1, corr_signal)
 
